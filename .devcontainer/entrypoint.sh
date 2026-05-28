@@ -15,14 +15,16 @@ if [ ! -f /usr/local/bin/mtproto-proxy ]; then
     chmod +x /usr/local/bin/mtproto-proxy
 fi
 
-# Generate random secret (32 hex chars)
-SECRET=$(od -An -tx1 -N16 /dev/urandom | tr -d ' \n')
+# Get existing secret or generate new one
+if [ -f /tmp/proxy_secret ]; then
+    SECRET=$(cat /tmp/proxy_secret)
+else
+    SECRET=$(od -An -tx1 -N16 /dev/urandom | tr -d ' \n')
+    echo "$SECRET" > /tmp/proxy_secret
+fi
 
 # Port configuration
 PORT="${PROXY_PORT:-443}"
-
-# Get official Telegram tag
-TAG=$(curl -s "https://core.telegram.org/getProxySecret" | od -An -tx1 | tr -d ' \n' | head -c 32)
 
 echo "========================================"
 echo "  @KakoolNews - Telegram MTProto Proxy"
@@ -38,14 +40,7 @@ echo "========================================"
 echo "Proxy running..."
 echo ""
 
-# Run MTProxy
-/usr/local/bin/mtproto-proxy \
-    -u root \
-    -p 8888 \
-    -H $PORT \
-    -M 1 \
-    -S "$SECRET" \
-    -d 2>&1 || \
+# Run MTProxy in background
 /usr/local/bin/mtproto-proxy \
     -u root \
     -p 8888 \
