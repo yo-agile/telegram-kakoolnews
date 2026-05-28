@@ -9,8 +9,8 @@
       "version": "latest"
     }
   },
-  "postCreateCommand": "apt-get update && apt-get install -y curl git build-essential libssl-dev zlib1g-dev wget unzip && rm -rf /var/lib/apt/lists/* && cd /tmp && rm -rf MTProxy && git clone https://github.com/TelegramMessenger/MTProxy.git && cd MTProxy && make && cp objs/bin/mtproto-proxy /usr/local/bin/ && chmod +x /usr/local/bin/mtproto-proxy && cp .devcontainer/entrypoint.sh /usr/local/bin/",
-  "postAttachCommand": ".devcontainer/entrypoint.sh",
+  "postCreateCommand": "apt-get update && apt-get install -y curl git build-essential libssl-dev zlib1g-dev wget unzip && rm -rf /var/lib/apt/lists/* && cd /tmp && rm -rf MTProxy && git clone https://github.com/TelegramMessenger/MTProxy.git && cd MTProxy && make && cp objs/bin/mtproto-proxy /usr/local/bin/ && chmod +x /usr/local/bin/mtproto-proxy && chmod +x /workspaces/telegram-kakoolnews/.devcontainer/entrypoint.sh",
+  "postAttachCommand": "/bin/bash /workspaces/telegram-kakoolnews/.devcontainer/entrypoint.sh",
   "portsAttributes": {
     "443": {
       "label": "telegram-proxy",
