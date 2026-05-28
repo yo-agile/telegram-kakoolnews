@@ -1,6 +1,9 @@
 {
-  "name": "@KakoolNews Telegram Proxy",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "name": "@Kakoolnews Proxy",
+  "build": {
+    "dockerfile": "./Dockerfile",
+    "context": "."
+  },
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
       "installZsh": false
@@ -9,17 +12,17 @@
       "version": "latest"
     }
   },
-  "postCreateCommand": "apt-get update && apt-get install -y python3 python3-pip && pip3 install mtprotoproxy && chmod +x /workspaces/telegram-kakoolnews/.devcontainer/entrypoint.sh",
-  "postAttachCommand": "/bin/bash /workspaces/telegram-kakoolnews/.devcontainer/entrypoint.sh",
+  "postCreateCommand": "chmod +x /usr/local/bin/entrypoint.sh",
+  "postAttachCommand": "/usr/local/bin/entrypoint.sh",
   "portsAttributes": {
     "443": {
-      "label": "telegram-proxy",
-      "protocol": "tcp",
+      "label": "proxy",
+      "protocol": "http",
       "onAutoForward": "silent"
     }
   },
   "forwardPorts": [443],
   "hostRequirements": {
-    "cpus": 1
+    "cpus": 2
   }
 }
