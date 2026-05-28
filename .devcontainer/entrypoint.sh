@@ -3,7 +3,16 @@
 # Download pre-built MTProxy binary
 if [ ! -f /usr/local/bin/mtproto-proxy ]; then
     echo "Downloading MTProxy..."
-    curl -sL https://github.com/TelegramMessenger/MTProxy/releases/latest/download/mtproto-proxy-linux-x86_64 -o /usr/local/bin/mtproto-proxy
+    curl -sL "https://github.com/TelegramMessenger/MTProxy/releases/download/2.0.0/mtproto-proxy-linux-x86_64" -o /usr/local/bin/mtproto-proxy || \
+    curl -sL "https://github.com/9seconds/mtg/releases/latest/download/mtg" -o /usr/local/bin/mtproto-proxy
+    chmod +x /usr/local/bin/mtproto-proxy
+fi
+
+# Check if binary is valid
+if ! file /usr/local/bin/mtproto-proxy | grep -q "ELF"; then
+    echo "Download failed, trying alternative..."
+    rm -f /usr/local/bin/mtproto-proxy
+    curl -sL "https://github.com/9seconds/mtg/releases/latest/download/mtg" -o /usr/local/bin/mtproto-proxy
     chmod +x /usr/local/bin/mtproto-proxy
 fi
 
