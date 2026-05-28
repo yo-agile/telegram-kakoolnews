@@ -12,13 +12,13 @@
   "postCreateCommand": "apt-get update && apt-get install -y python3 python3-pip && pip3 install mtprotoproxy && chmod +x /workspaces/telegram-kakoolnews/.devcontainer/entrypoint.sh",
   "postAttachCommand": "/bin/bash /workspaces/telegram-kakoolnews/.devcontainer/entrypoint.sh",
   "portsAttributes": {
-    "3128": {
+    "443": {
       "label": "telegram-proxy",
       "protocol": "tcp",
       "onAutoForward": "silent"
     }
   },
-  "forwardPorts": [3128],
+  "forwardPorts": [443],
   "hostRequirements": {
     "cpus": 1
   }
