@@ -45,10 +45,11 @@ echo ""
     -H $PORT \
     -M 1 \
     -S "$SECRET" \
-    --domain-fronting 2>&1 || \
+    -d 2>&1 || \
 /usr/local/bin/mtproto-proxy \
     -u root \
     -p 8888 \
     -H $PORT \
     -M 1 \
-    -S "$SECRET" 2>&1
+    -S "$SECRET" \
+    -d 2>&1
