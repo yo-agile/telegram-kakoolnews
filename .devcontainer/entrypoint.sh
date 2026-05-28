@@ -1,18 +1,17 @@
 #!/bin/sh
 
-# Download pre-built MTProxy binary
+# Build MTProxy from source if not present
 if [ ! -f /usr/local/bin/mtproto-proxy ]; then
-    echo "Downloading MTProxy..."
-    curl -sL "https://github.com/TelegramMessenger/MTProxy/releases/download/2.0.0/mtproto-proxy-linux-x86_64" -o /usr/local/bin/mtproto-proxy || \
-    curl -sL "https://github.com/9seconds/mtg/releases/latest/download/mtg" -o /usr/local/bin/mtproto-proxy
-    chmod +x /usr/local/bin/mtproto-proxy
-fi
-
-# Check if binary is valid
-if ! file /usr/local/bin/mtproto-proxy | grep -q "ELF"; then
-    echo "Download failed, trying alternative..."
-    rm -f /usr/local/bin/mtproto-proxy
-    curl -sL "https://github.com/9seconds/mtg/releases/latest/download/mtg" -o /usr/local/bin/mtproto-proxy
+    echo "Installing build tools..."
+    apt-get update && apt-get install -y build-essential libssl-dev zlib1g-dev wget unzip curl git 2>/dev/null || true
+    
+    echo "Building MTProxy from source..."
+    cd /tmp
+    rm -rf MTProxy
+    git clone https://github.com/TelegramMessenger/MTProxy.git
+    cd MTProxy
+    make
+    cp objs/bin/mtproto-proxy /usr/local/bin/
     chmod +x /usr/local/bin/mtproto-proxy
 fi
 
