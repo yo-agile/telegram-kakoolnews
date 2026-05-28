@@ -1,33 +1,21 @@
-#!/bin/sh
+#!/bin/bash
 
-# Build MTProxy from source if not present
-if [ ! -f /usr/local/bin/mtproto-proxy ]; then
-    echo "Installing build tools..."
-    apt-get update && apt-get install -y build-essential libssl-dev zlib1g-dev wget unzip curl git 2>/dev/null || true
-    
-    echo "Building MTProxy from source..."
-    cd /tmp
-    rm -rf MTProxy
-    git clone https://github.com/TelegramMessenger/MTProxy.git
-    cd MTProxy
-    make
-    cp objs/bin/mtproto-proxy /usr/local/bin/
-    chmod +x /usr/local/bin/mtproto-proxy
+# Install Python and mtprotoproxy if not present
+if [ ! -f /usr/local/bin/mtprotoproxy ]; then
+    echo "Installing Python and mtprotoproxy..."
+    apt-get update && apt-get install -y python3 python3-pip 2>/dev/null || true
+    pip3 install mtprotoproxy 2>/dev/null || python3 -m pip install mtprotoproxy 2>/dev/null || true
+    cp $(which mtprotoproxy) /usr/local/bin/mtprotoproxy 2>/dev/null || true
 fi
 
-# Get existing secret or generate new one
-if [ -f /tmp/proxy_secret ]; then
-    SECRET=$(cat /tmp/proxy_secret)
-else
-    SECRET=$(od -An -tx1 -N16 /dev/urandom | tr -d ' \n')
-    echo "$SECRET" > /tmp/proxy_secret
-fi
+# Generate secret
+SECRET=$(openssl rand -hex 16 2>/dev/null || cat /dev/urandom | od -An -tx1 | tr -d ' \n' | head -c 32)
 
 # Port configuration
-PORT="${PROXY_PORT:-443}"
+PORT="${PROXY_PORT:-3128}"
 
 echo "========================================"
-echo "  @KakoolNews - Telegram MTProto Proxy"
+echo "  @KakoolNews - Telegram Proxy"
 echo "========================================"
 echo ""
 echo "Secret: $SECRET"
@@ -40,11 +28,8 @@ echo "========================================"
 echo "Proxy running..."
 echo ""
 
-# Run MTProxy in background
-/usr/local/bin/mtproto-proxy \
-    -u root \
-    -p 8888 \
-    -H $PORT \
-    -M 1 \
-    -S "$SECRET" \
-    -d 2>&1
+# Run the proxy
+mtprotoproxy --port $PORT --secret "$SECRET" &
+
+sleep 2
+tail -f /dev/null
