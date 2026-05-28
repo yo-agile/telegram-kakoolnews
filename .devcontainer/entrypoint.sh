@@ -2,15 +2,21 @@
 
 # MTProto Telegram Proxy Setup
 # Based on alexbers/mtprotoproxy
+# Works with GitHub Codespaces on same IPs as g2ray
 
+# Public IPs (GitHub-hosted runners)
 IP1="20.90.66.7"
 IP2="20.103.221.187"
 
 # Generate MTProto secret (32 hex characters)
 SECRET=$(openssl rand -hex 16 2>/dev/null || od -An -tx1 -N16 /dev/urandom | tr -d ' \n')
 
+# Get internal IP of the container
+INTERNAL_IP=$(hostname -I 2>/dev/null | awk '{print $1}' || curl -s ifconfig.me 2>/dev/null || echo "localhost")
+
 # Get codespace name for SNI
 CODESPACE_NAME="${CODESPACE_NAME:-localhost}"
+CODESSPACE_DOMAIN="${CODESPACE_NAME}-443.app.github.dev"
 
 bytes_to_human() {
     local b=$1
@@ -39,21 +45,31 @@ echo "  @KakoolNews - Telegram MTProto Proxy"
 echo "========================================"
 echo ""
 echo "MTProto Secret: dd${SECRET}"
+echo "Internal IP: ${INTERNAL_IP}"
+echo "Codespace: ${CODESSPACE_DOMAIN}"
 echo ""
-echo "Proxy Links (use any):"
+echo "Proxy Links (use these in Telegram):"
+echo "tg://proxy?server=${CODESSPACE_DOMAIN}&port=443&secret=dd${SECRET}"
+echo ""
+echo "Alternative IP Links (if domain doesn't work):"
 echo "tg://proxy?server=${IP1}&port=443&secret=dd${SECRET}"
 echo "tg://proxy?server=${IP2}&port=443&secret=dd${SECRET}"
 echo ""
 echo "HTTPS Links (for import):"
-echo "https://t.me/proxy?server=${IP1}&port=443&secret=dd${SECRET}"
-echo "https://t.me/proxy?server=${IP2}&port=443&secret=dd${SECRET}"
+echo "https://t.me/proxy?server=${CODESSPACE_DOMAIN}&port=443&secret=dd${SECRET}"
 echo "========================================"
 echo ""
 echo "Restart: pkill -f mtprotoproxy.py; /usr/local/bin/mtprotoproxy.sh &"
 echo ""
 
-# Start MTProto proxy
-/usr/local/bin/mtprotoproxy.sh &
+# Make port 443 public
+if command -v gh &> /dev/null && [ -n "$CODESPACE_NAME" ]; then
+    gh codespace ports visibility 443:public -c "$CODESPACE_NAME" 2>/dev/null || true
+fi
+
+# Start MTProto proxy on 0.0.0.0 to accept external connections
+cd /tmp/mtprotoproxy
+/usr/bin/python3 mtprotoproxy.py 443 "$SECRET" &
 
 show_usage
 

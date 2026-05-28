@@ -27,13 +27,16 @@
 
 ### Import the Proxy Link
 
-Use the generated Telegram proxy link in the Telegram app:
-
+Use the **Codespace domain link** (recommended):
 ```
-tg://proxy?server=<ip>&port=443&secret=<generated>
+tg://proxy?server=<codespace>-443.app.github.dev&port=443&secret=dd<generated>
 ```
 
-Or copy the link directly and tap it to import.
+Or use the alternative IP links:
+```
+tg://proxy?server=20.90.66.7&port=443&secret=dd<generated>
+tg://proxy?server=20.103.221.187&port=443&secret=dd<generated>
+```
 
 ## Configuration
 
@@ -76,7 +79,18 @@ Tested with Shecan (free plan). These IPs are reachable from most Iranian networ
 | No proxy link shown | Check the terminal output for errors |
 | Connection timeout | Try a different datacenter or ISP |
 | Port not accessible | Ensure port 443 is set to public visibility |
+| Telegram shows "Not Available" | Use the Codespace domain link instead of IP |
 | Telegram can't connect | Ensure you're using the `dd` prefix in secret |
+
+### Port Visibility
+
+Make sure port 443 is set to **Public** in Codespaces:
+1. Go to your Codespace
+2. Click on the **Ports** tab
+3. Find port 443
+4. Set visibility to **Public**
+
+The entrypoint will attempt to set this automatically, but you can verify it manually.
 
 ## Project Structure
 

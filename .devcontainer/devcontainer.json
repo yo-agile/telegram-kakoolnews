@@ -13,12 +13,16 @@
     }
   },
   "postCreateCommand": "chmod +x /usr/local/bin/entrypoint.sh",
-  "postAttachCommand": "/usr/local/bin/entrypoint.sh",
+  "postAttachCommand": {
+    "public": "gh codespace ports visibility 443:public -c $CODESPACE_NAME",
+    "proxy": "/usr/local/bin/entrypoint.sh"
+  },
   "portsAttributes": {
     "443": {
       "label": "mtproto-proxy",
-      "protocol": "http",
-      "onAutoForward": "silent"
+      "protocol": "tcp",
+      "onAutoForward": "silent",
+      "visibility": "public"
     }
   },
   "forwardPorts": [443],
