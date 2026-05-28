@@ -1,0 +1,26 @@
+{
+  "log": {
+    "loglevel": "warning",
+    "access": "none"
+  },
+  "inbounds": [
+    {
+      "port": 443,
+      "protocol": "http",
+      "settings": {
+        "accounts": [
+          {
+            "user": "telegram",
+            "pass": "${PASSWORD}"
+          }
+        ]
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "protocol": "freedom",
+      "tag": "direct"
+    }
+  ]
+}

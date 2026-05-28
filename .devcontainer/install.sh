@@ -1,34 +1,39 @@
 #!/bin/sh
 set -eu
 
-MTPROXY_DIR="/usr/local/bin"
-MTPROXY_REPO="https://github.com/alexbers/mtprotoproxy.git"
+XRAY_DIR="/usr/local/bin"
 
-echo "Installing MTProto Proxy..."
+detect_arch() {
+    arch="$(uname -m)"
+    case "$arch" in
+        x86_64|amd64) echo "64" ;;
+        aarch64|arm64) echo "arm64-v8a" ;;
+        armv7*) echo "arm32-v7a" ;;
+        *) echo "Unsupported architecture: $arch" >&2; exit 1 ;;
+    esac
+}
 
-# Clone or update mtprotoproxy
-if [ -d "/tmp/mtprotoproxy" ]; then
-    echo "Updating mtprotoproxy..."
-    cd /tmp/mtprotoproxy && git pull
-else
-    echo "Cloning mtprotoproxy..."
-    cd /tmp && git clone "$MTPROTO_REPO"
-fi
+fetch_latest_version() {
+    version=$(wget -qO- "https://api.github.com/repos/XTLS/Xray-core/releases/latest" \
+        | grep '"tag_name"' | head -1 | sed 's/.*"tag_name": *"//;s/".*//')
+    if [ -z "$version" ]; then
+        echo "Failed to fetch latest Xray version" >&2
+        exit 1
+    fi
+    echo "$version"
+}
 
-# Create launcher script
-cat > "$MTPROXY_DIR/mtprotoproxy.sh" << 'SCRIPT'
-#!/bin/sh
-# MTProto Proxy Launcher
-# Usage: mtprotoproxy.sh [port] [secret]
-# Default: port 443, secret from environment or auto-generated
+ARCH="$(detect_arch)"
+VERSION="$(fetch_latest_version)"
+URL="https://github.com/XTLS/Xray-core/releases/download/${VERSION}/Xray-linux-${ARCH}.zip"
 
-PORT="${1:-443}"
-SECRET="${2:-$(openssl rand -hex 16 2>/dev/null || od -An -tx1 -N16 /dev/urandom | tr -d ' \n')}"
+echo "Downloading Xray ${VERSION} for linux-${ARCH}..."
+wget -O /tmp/xray.zip "$URL"
 
-cd /tmp/mtprotoproxy
-exec /usr/bin/python3 mtprotoproxy.py "$PORT" "$SECRET"
-SCRIPT
+echo "Installing Xray..."
+unzip -o /tmp/xray.zip -d /tmp/xray
+chmod +x /tmp/xray/xray
+mv /tmp/xray/xray "$XRAY_DIR/xray"
 
-chmod +x "$MTPROXY_DIR/mtprotoproxy.sh"
-
-echo "MTProto Proxy installed successfully."
+rm -rf /tmp/xray.zip /tmp/xray
+echo "Xray ${VERSION} installed successfully."

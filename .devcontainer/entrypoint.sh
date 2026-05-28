@@ -1,22 +1,24 @@
 #!/bin/sh
 
-# MTProto Telegram Proxy Setup
-# Based on alexbers/mtprotoproxy
-# Works with GitHub Codespaces on same IPs as g2ray
+# HTTP Proxy Setup via Xray
+# Works with GitHub Codespaces - same IPs as g2ray
+
+CONFIG_TEMPLATE="/etc/config.template.json"
+CONFIG="/etc/config.json"
 
 # Public IPs (GitHub-hosted runners)
 IP1="20.90.66.7"
 IP2="20.103.221.187"
 
-# Generate MTProto secret (32 hex characters)
-SECRET=$(openssl rand -hex 16 2>/dev/null || od -An -tx1 -N16 /dev/urandom | tr -d ' \n')
-
-# Get internal IP of the container
-INTERNAL_IP=$(hostname -I 2>/dev/null | awk '{print $1}' || curl -s ifconfig.me 2>/dev/null || echo "localhost")
-
-# Get codespace name for SNI
+# Get codespace info
 CODESPACE_NAME="${CODESPACE_NAME:-localhost}"
-CODESSPACE_DOMAIN="${CODESPACE_NAME}-443.app.github.dev"
+CODESPACE_DOMAIN="${CODESPACE_NAME}-443.app.github.dev"
+
+# Generate random password
+PASSWORD=$(openssl rand -base64 24 2>/dev/null || cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 24 | head -1)
+
+# Replace placeholder in config
+sed "s/\${PASSWORD}/$PASSWORD/g" "$CONFIG_TEMPLATE" > "$CONFIG"
 
 bytes_to_human() {
     local b=$1
@@ -41,35 +43,30 @@ show_usage() {
 }
 
 echo "========================================"
-echo "  @KakoolNews - Telegram MTProto Proxy"
+echo "  @KakoolNews - HTTP Proxy"
 echo "========================================"
 echo ""
-echo "MTProto Secret: dd${SECRET}"
-echo "Internal IP: ${INTERNAL_IP}"
-echo "Codespace: ${CODESSPACE_DOMAIN}"
+echo "Server: ${CODESPACE_DOMAIN}"
+echo "Port: 443"
+echo "Username: telegram"
+echo "Password: ${PASSWORD}"
 echo ""
-echo "Proxy Links (use these in Telegram):"
-echo "tg://proxy?server=${CODESSPACE_DOMAIN}&port=443&secret=dd${SECRET}"
+echo "HTTP Proxy Links:"
+echo "http://telegram:${PASSWORD}@${CODESPACE_DOMAIN}:443"
 echo ""
-echo "Alternative IP Links (if domain doesn't work):"
-echo "tg://proxy?server=${IP1}&port=443&secret=dd${SECRET}"
-echo "tg://proxy?server=${IP2}&port=443&secret=dd${SECRET}"
+echo "IP Alternative:"
+echo "http://telegram:${PASSWORD}@${IP1}:443"
+echo "http://telegram:${PASSWORD}@${IP2}:443"
 echo ""
-echo "HTTPS Links (for import):"
-echo "https://t.me/proxy?server=${CODESSPACE_DOMAIN}&port=443&secret=dd${SECRET}"
+echo "HTTPS (with TLS):"
+echo "https://telegram:${PASSWORD}@${CODESPACE_DOMAIN}:443"
 echo "========================================"
 echo ""
-echo "Restart: pkill -f mtprotoproxy.py; /usr/local/bin/mtprotoproxy.sh &"
+echo "Restart: pkill xray; /usr/local/bin/xray -c /etc/config.json &"
 echo ""
 
-# Make port 443 public
-if command -v gh &> /dev/null && [ -n "$CODESPACE_NAME" ]; then
-    gh codespace ports visibility 443:public -c "$CODESPACE_NAME" 2>/dev/null || true
-fi
-
-# Start MTProto proxy on 0.0.0.0 to accept external connections
-cd /tmp/mtprotoproxy
-/usr/bin/python3 mtprotoproxy.py 443 "$SECRET" &
+# Start Xray HTTP proxy
+/usr/local/bin/xray -c "$CONFIG" &
 
 show_usage
 

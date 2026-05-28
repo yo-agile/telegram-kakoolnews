@@ -1,6 +1,7 @@
-# @KakoolNews Telegram MTProto Proxy
+# @KakoolNews HTTP Proxy
 
-> Automated MTProto Telegram proxy setup via GitHub Codespaces — works anywhere Codespaces is available.
+> Automated HTTP Proxy setup via GitHub Codespaces — works anywhere Codespaces is available.
+> Compatible with Telegram and other apps that support HTTP proxy.
 
 ## Warning
 
@@ -8,11 +9,10 @@
 
 ## Features
 
-- **Auto-generated Secret** — each Codespace session gets a unique MTProto secret
-- **MTProxy Support** — uses official Telegram MTProto proxy protocol
+- **Auto-generated Password** — each Codespace session gets a unique credentials
+- **HTTP Proxy** — works with Telegram and any HTTP proxy-compatible app
 - **Multi-architecture** — supports amd64, arm64, and armv7
 - **Traffic stats** — built-in bandwidth monitoring
-- **Health checks** — built-in Docker health monitoring
 - **Same IPs as g2ray** — runs on the same reliable IPs:
   - `20.90.66.7`
   - `20.103.221.187`
@@ -22,35 +22,35 @@
 1. Fork this repository (use a secondary account)
 2. Click **Code** > **Codespaces** > **Create codespace on main**
 3. Wait 2–5 minutes for setup to complete
-4. Copy the MTProto link printed in the terminal
-5. Import in Telegram: **Settings** → **Proxy** → **Add Proxy**
+4. Copy the proxy credentials from the terminal
+5. Configure your app to use HTTP proxy
 
-### Import the Proxy Link
+### Telegram Setup
 
-Use the **Codespace domain link** (recommended):
-```
-tg://proxy?server=<codespace>-443.app.github.dev&port=443&secret=dd<generated>
-```
+1. Open Telegram
+2. Go to **Settings** → **Data and Storage** → **Proxy Settings**
+3. Click **Add Proxy**
+4. Select **HTTP**
+5. Enter:
+   - Server: `<codespace>-443.app.github.dev`
+   - Port: `443`
+   - Username: `telegram`
+   - Password: (copy from terminal)
 
-Or use the alternative IP links:
-```
-tg://proxy?server=20.90.66.7&port=443&secret=dd<generated>
-tg://proxy?server=20.103.221.187&port=443&secret=dd<generated>
-```
+## Proxy Credentials
 
-## Configuration
+| Setting | Value |
+|---------|-------|
+| Server | `<codespace>-443.app.github.dev` |
+| Port | 443 |
+| Username | `telegram` |
+| Password | (auto-generated) |
 
-### MTProto Secret
+### Alternative IPs
 
-The secret is auto-generated at startup. Each Codespace gets a unique 32-character hex secret.
-
-### Proxy Port
-
-| Setting | Value | Description |
-|---------|-------|-------------|
-| Port | 443 | MTProto proxy port |
-| Protocol | MTProto | Telegram proxy protocol |
-| Secret | Auto-generated | 32-char hex string |
+If the domain doesn't work from your network:
+- `20.90.66.7`
+- `20.103.221.187`
 
 ## Codespace Quota
 
@@ -64,45 +64,24 @@ GitHub provides **120 free core-hours/month**:
 
 **Stop your Codespace when not in use** to conserve hours.
 
-## Compatible Networks
-
-Tested with Shecan (free plan). These IPs are reachable from most Iranian networks:
-
-- `20.90.66.7`
-- `20.103.221.187`
-
 ## Troubleshooting
 
 | Problem | Solution |
 |---------|---------|
 | Codespace fails to start | Delete it and create a new one |
-| No proxy link shown | Check the terminal output for errors |
-| Connection timeout | Try a different datacenter or ISP |
+| Connection timeout | Try the alternative IPs |
 | Port not accessible | Ensure port 443 is set to public visibility |
-| Telegram shows "Not Available" | Use the Codespace domain link instead of IP |
-| Telegram can't connect | Ensure you're using the `dd` prefix in secret |
-
-### Port Visibility
-
-Make sure port 443 is set to **Public** in Codespaces:
-1. Go to your Codespace
-2. Click on the **Ports** tab
-3. Find port 443
-4. Set visibility to **Public**
-
-The entrypoint will attempt to set this automatically, but you can verify it manually.
+| Proxy not working | Check username/password are correct |
 
 ## Project Structure
 
 ```
 .devcontainer/
-  Dockerfile          # Container image definition
-  config.json         # MTProxy configuration template
+  Dockerfile          # Container image definition with Xray
+  config.json         # Xray HTTP proxy configuration
   devcontainer.json   # Codespace settings and lifecycle hooks
-  entrypoint.sh       # Startup script: generates secret, configures MTProxy, prints links
-  install.sh          # Downloads and installs mtprotoproxy
-docs/
-  screenshot.png      # Terminal screenshot for reference
+  entrypoint.sh       # Startup script: generates credentials, starts Xray
+  install.sh          # Downloads and installs Xray-core
 ```
 
 ## Support

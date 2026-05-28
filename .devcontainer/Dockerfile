@@ -1,7 +1,7 @@
 FROM debian:bookworm-slim
 
 LABEL maintainer="@Kakoolnews" \
-      description="Telegram MTProto Proxy via GitHub Codespaces"
+      description="HTTP Proxy via GitHub Codespaces"
 
 COPY install.sh /app/install.sh
 
@@ -9,11 +9,11 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     bash git curl wget unzip tzdata openssl ca-certificates uuid-runtime \
-    python3 python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
 RUN chmod +x /app/install.sh && /app/install.sh
 
+COPY config.json /etc/config.template.json
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 

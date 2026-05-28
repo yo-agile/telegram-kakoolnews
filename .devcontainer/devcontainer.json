@@ -1,5 +1,5 @@
 {
-  "name": "@Kakoolnews Telegram Proxy",
+  "name": "@Kakoolnews HTTP Proxy",
   "build": {
     "dockerfile": "./Dockerfile",
     "context": "."
@@ -12,17 +12,15 @@
       "version": "latest"
     }
   },
-  "postCreateCommand": "chmod +x /usr/local/bin/entrypoint.sh",
   "postAttachCommand": {
     "public": "gh codespace ports visibility 443:public -c $CODESPACE_NAME",
-    "proxy": "/usr/local/bin/entrypoint.sh"
+    "xray": "sudo -E /usr/local/bin/entrypoint.sh"
   },
   "portsAttributes": {
     "443": {
-      "label": "mtproto-proxy",
-      "protocol": "tcp",
-      "onAutoForward": "silent",
-      "visibility": "public"
+      "label": "http-proxy",
+      "protocol": "http",
+      "onAutoForward": "silent"
     }
   },
   "forwardPorts": [443],
