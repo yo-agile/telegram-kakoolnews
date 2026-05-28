@@ -29,7 +29,7 @@ echo "Proxy running..."
 echo ""
 
 # Run the proxy
-mtprotoproxy --port $PORT --secret "$SECRET" --advertisement "@Kakoolnews" &
+mtprotoproxy --port $PORT --secret "$SECRET" &
 
 sleep 2
 tail -f /dev/null
